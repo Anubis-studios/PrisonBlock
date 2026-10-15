@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.BlockB12" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#4ADE80</item>
+        <item name="colorPrimaryVariant">#161B22</item>
+        <item name="colorOnPrimary">#0D1117</item>
+        <item name="android:statusBarColor">#161B22</item>
+        <item name="android:windowBackground">#0D1117</item>
+    </style>
+</resources>
