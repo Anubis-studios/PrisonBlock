@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLOCK B-12 — OVERHAUL (STABLE)</title>
+<style>
+:root{--bg:#0d1117;--p:#161b22;--p2:#1c2128;--bd:#30363d;--tx:#c9d1d9;--dim:#8b949e;--g:#4ade80;--r:#ef4444;--a:#f59e0b;--b:#38bdf8;--pu:#a855f7;--go:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh}
+#booterr{display:none;position:fixed;inset:0;background:#200;z-index:999;padding:20px;color:#f88;font:14px monospace;white-space:pre-wrap;overflow:auto}
+header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:10px 14px;background:var(--p);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10}
+.logo{font-weight:900;letter-spacing:2px;color:var(--g)}
+.stat{font:12px monospace}.stat b{font-size:14px}
+.cash{color:var(--go)}.bank{color:var(--b)}.fav{color:var(--pu)}.heat{color:var(--r)}.infl{color:var(--a)}
+#hpwrap{width:110px;height:8px;background:#222;border-radius:4px;overflow:hidden}
+#hpbar{height:100%;background:var(--r);width:100%}
+#netpill{margin-left:auto;font:11px monospace;padding:4px 10px;border:1px solid var(--bd);border-radius:12px;color:var(--dim)}
+nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:var(--p);border-bottom:1px solid var(--bd)}
+nav button{background:var(--p2);border:1px solid var(--bd);color:var(--dim);padding:7px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600}
+nav button.on{color:var(--g);border-color:var(--g);background:rgba(74,222,128,.08)}
+main{padding:14px;max-width:900px;margin:0 auto}
+.view{display:none}.view.on{display:block}
+h2{font-size:16px;letter-spacing:1px;margin-bottom:10px;color:#edf1f5;border-bottom:1px solid var(--bd);padding-bottom:6px}
+.card{background:var(--p);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #21262d}
+.row:last-child{border:0}
+.dim{color:var(--dim);font-size:12px}
+.mono{font-family:monospace}
+button.act{background:#21262d;border:1px solid var(--bd);color:var(--tx);padding:7px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:700}
+button.act:disabled{opacity:.4;cursor:not-allowed}
+button.grn{border-color:var(--g);color:var(--g)}button.red{border-color:var(--r);color:var(--r)}button.gold{border-color:var(--go);color:var(--go)}button.blu{border-color:var(--b);color:var(--b)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid9{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pit{padding:12px 4px;text-align:center;background:var(--p2);border:1px solid var(--bd);border-radius:8px;cursor:pointer;font:11px monospace}
+.pit.dug{opacity:.4;cursor:default}
+#log{background:#0a0d12;border:1px solid var(--bd);border-radius:8px;padding:8px;height:130px;overflow-y:auto;font:11px monospace;margin-top:12px}
+#toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--p);border:1px solid var(--g);color:var(--g);padding:8px 18px;border-radius:8px;font-weight:700;font-size:13px;display:none;z-index:50}
+#banner{position:fixed;top:80px;left:50%;transform:translateX(-50%);width:min(560px,94%);background:var(--p);border:2px solid var(--r);border-radius:10px;padding:12px;z-index:60;display:none}
+#banner h3{color:var(--r);font-size:14px;margin-bottom:4px}#banner p{font-size:12px;margin-bottom:8px}
+#bbar{height:6px;background:#222;border-radius:3px;overflow:hidden;margin-bottom:8px}#bfill{height:100%;background:var(--r);width:100%}
+#bopts{display:flex;flex-wrap:wrap;gap:6px}
+.chat{display:grid;grid-template-columns:200px 1fr;gap:10px;min-height:300px}
+.cl{background:var(--p);border:1px solid var(--bd);border-radius:10px;overflow-y:auto;max-height:340px}
+.ci{padding:10px;border-bottom:1px solid #21262d;cursor:pointer;font-size:13px}
+.ci.on{background:rgba(74,222,128,.08);color:var(--g)}
+.cw{background:var(--p);border:1px solid var(--bd);border-radius:10px;display:flex;flex-direction:column}
+#msgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:6px;max-height:260px}
+.m{max-width:75%;padding:7px 10px;border-radius:10px;font-size:12px}
+.m.in{background:var(--p2);align-self:flex-start}.m.out{background:rgba(74,222,128,.12);color:var(--g);align-self:flex-end;border:1px solid rgba(74,222,128,.25)}
+.m.urgent{border:1px solid var(--r);color:var(--r)}
+#cin{display:flex;gap:6px;padding:8px;border-top:1px solid var(--bd)}
+#cin input{flex:1;background:#0a0d12;border:1px solid var(--bd);color:var(--tx);padding:8px;border-radius:6px}
+#ytmodal{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:80}
+.ytw{width:min(92vw,800px);background:var(--p);border:1px solid var(--bd);border-radius:10px;overflow:hidden}
+.ytb{display:flex;gap:8px;align-items:center;padding:8px;background:var(--p2);font:11px monospace;color:var(--dim)}
+.ytb span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ytw iframe{width:100%;height:55vh;border:0;display:block;background:#000}
+.ytitem{display:flex;gap:10px;align-items:center;padding:8px;background:var(--p2);border:1px solid var(--bd);border-radius:8px;margin-bottom:6px;cursor:pointer}
+.ytitem img{width:96px;border-radius:4px}
+</style>
+</head>
+<body>
+<div id="booterr"></div>
+<header>
+  <span class="logo">BLOCK B-12</span>
+  <span class="stat">HP <div id="hpwrap"><div id="hpbar"></div></div></span>
+  <span class="stat cash">CASH <b id="h-cash">$0</b></span>
+  <span class="stat bank">BANK <b id="h-bank">$0</b></span>
+  <span class="stat fav">FAV <b id="h-fav">0</b></span>
+  <span class="stat infl">INF <b id="h-inf">0</b></span>
+  <span class="stat heat">HEAT <b id="h-heat">0%</b></span>
+  <span id="netpill">NET: SIM</span>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<div id="log"></div>
+<div id="toast"></div>
+<div id="banner"><h3 id="btitle"></h3><p id="btext"></p><div id="bbar"><div id="bfill"></div></div><div id="bopts"></div></div>
+<div id="ytmodal"><div class="ytw"><div class="ytb"><span id="yturl"></span><button class="act red" data-act="yt:close">CLOSE</button></div><iframe id="ytframe" allowfullscreen></iframe></div></div>
+<script>
+"use strict";
+window.addEventListener("error",function(e){var b=document.getElementById("booterr");b.style.display="block";b.textContent="BOOT ERROR:\n"+(e.message||e)+"\nline "+(e.lineno||"?");});
+function $(i){return document.getElementById(i);}
+function clamp(v,a,b){return v<a?a:v>b?b:v;}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function money(n){return "$"+Math.floor(n).toLocaleString();}
+function esc(s){return String(s).replace(/</g,"&lt;");}
+/* ---------- DATA ---------- */
+var NAMES=["Maddog","Two-Strikes","Pox","Kicker","Whisper","Bruiser","Slate","Ghost","Ratchet","Havoc"];
+var LOOT=[["cash",30],["shank",22],["drink",16],["bar",14],["contra",10],["favor",8]];
+var INAME={drink:"Energy Drink",bar:"Protein Bar",contra:"Contraband",shank:"Shiv"};
+var JOBS=[{t:"Corridor Lookout",n:6,c:30,r:.16,s:"spd",sev:18},{t:"Laundry Smuggle",n:8,c:44,r:.22,s:"spd",sev:24},{t:"Bunk Shakedown",n:9,c:52,r:.26,s:"def",sev:28},{t:"Debt Collection",n:11,c:64,r:.30,s:"def",sev:32},{t:"Yard Contraband Run",n:12,c:72,r:.32,s:"spd",sev:36},{t:"Kitchen Riot Bait",n:14,c:88,r:.38,s:"def",sev:42}];
+var AMEN=[{id:"bed",n:"Comfy Bed",c:2,d:"+5 Max NRG",st:"nrg",v:5},{id:"weights",n:"Weight Rack",c:3,d:"+5 Max STM",st:"stm",v:5},{id:"radio",n:"Radio",c:3,d:"+5 Max NRV",st:"nrv",v:5},{id:"locker",n:"Hidden Locker",c:5,d:"Blocks shakedown theft",st:"none",v:0}];
+var FACS={bloods:{n:"Bloods",c:"#ef4444"},crips:{n:"Crips",c:"#38bdf8"},latin:{n:"Latin Kings",c:"#fbbf24"},aryan:{n:"Aryan Brotherhood",c:"#e5e7eb"}};
+var RECIPES=[{id:"rshiv",n:"Reinforced Shiv",p:{shank:1,contra:1},d:"+10 brawl edge"},{id:"stim",n:"Stimulant",p:{drink:1,contra:1},d:"+30% power, 3 brawls"},{id:"smoke",n:"Smoke Bomb",p:{contra:2},d:"Negates one loss"}];
+var WANTED=[{n:'"MADDOG" Johnson',cr:"Assault, Murder",b:50000},{n:'"GHOST" Williams',cr:"Trafficking",b:35000},{n:'"BRUISER" Thompson',cr:"Armed Robbery",b:42000}];
+var HITS=[{n:'"SLICK" Martinez',rw:25000,d:4},{n:'"WHISPER" Jones',rw:18000,d:3},{n:'"RATCHET" Davis',rw:30000,d:5}];
+var EVENTS=[
+ {id:"shakedown",title:"GUARD SHAKEDOWN INBOUND",contact:0,win:25,text:"CO Jenkins called the sweep — Block B in ~25s. Your call, boss?",opts:[{c:"STASH",l:"STASH IT (-1 fav)",f:function(){if(G.fav>=1){G.fav--;log("Crew moved everything to the locker.","g");}else{G.cash=Math.max(0,G.cash-400);G.heat+=6;log("Partial bust -$400","+r");}}},{c:"BRIBE",l:"BRIBE $500",f:function(){if(G.cash>=500){G.cash-=500;G.heat=Math.max(0,G.heat-8);log("Jenkins bribed (-8% heat)","b");}else{loseProd();}}},{c:"IGNORE",l:"RIDE IT OUT",f:loseProd}],to:loseProd},
+ {id:"raid",title:"RIVAL RAID ON THE LAUNDRY",contact:2,win:30,text:"Maddog's crew is moving on the laundry racket NOW. Orders?",opts:[{c:"DEFEND",l:"DEFEND (-50 inf)",f:function(){G.inf=Math.max(0,G.inf-50);if(Math.random()<.7){G.cash+=300;log("Raid repelled +$300","g");}else{G.income-=100;log("Press damaged (-$100/day)","a");}}},{c:"PAY",l:"PAY $800",f:function(){if(G.cash>=800){G.cash-=800;log("Tribute paid","a");}else{G.income-=150;log("Racket squeezed","r");}}},{c:"IGNORE",l:"LET IT BURN",f:function(){G.income=Math.max(100,G.income-150);log("Laundry looted (-$150/day)","r");}}],to:function(){G.income=Math.max(100,G.income-150);log("Laundry looted","r");}},
+ {id:"shipment",title:"KITCHEN VENT SHIPMENT",contact:1,win:20,text:"Supplier at the vent. Four-minute window. Buy in or pass?",opts:[{c:"BUY",l:"BUY IN $600",f:function(){if(G.cash>=600){G.cash-=600;G.fav+=2;G.inv.contra+=2;log("Shipment secured (+2 fav, +2 contra)","g");}else log("Not enough cash","r");}},{c:"PASS",l:"PASS",f:function(){log("Shipment passed","d");}}],to:function(){log("Window closed","d");}}];
+var CATALOG=[{id:"jfKfPfyJRdk",t:"lofi hip hop radio",ch:"Lofi Girl",tags:"music lofi radio chill"},{id:"M7lc1UVf-VE",t:"YouTube Developers Live",ch:"Google",tags:"youtube api dev documentary"},{id:"aqz-KE-bpKQ",t:"Big Buck Bunny 4K",ch:"Blender",tags:"movie animation film"},{id:"dQw4w9WgXcQ",t:"Rick Astley - Never Gonna Give You Up",ch:"Rick Astley",tags:"music 80s classic"}];
+var TABS=[["gym","Gym"],["yard","Yard"],["market","Market"],["warden","Warden"],["infirm","Infirmary"],["cell","Cell"],["kingpin","Kingpin"],["factions","Factions"],["wire","Wire"],["recroom","Rec Room"],["wanted","Wanted"],["browser","PrisonNet"]];
+/* ---------- STATE ---------- */
+function newG(){return{lv:1,exp:0,str:5,def:5,spd:5,hp:100,mhp:100,nrg:20,mnrg:20,stm:60,mstm:60,nrv:20,mnrv:20,cash:40,bank:0,fav:0,inf:0,heat:0,inv:{drink:1,bar:1,contra:0,shank:0},inj:false,rest:0,tr:0,
+ pits:[0,0,0,0,0,0,0,0,0],dug:0,won:0,rivals:[],rivalAt:0,jobs:[],jobAt:0,placed:[],cosm:[],buffs:{},mentor:null,
+ racks:[{id:"laundry",n:"Laundry Laundering",y:200,l:1},{id:"fight",n:"Fight Club",y:150,l:1},{id:"smug",n:"Smuggling Ring",y:100,l:1}],income:450,tx:[],
+ fac:{},curFac:null,snitch:false,sent:0,parole:60,
+ wire:[{n:'"Slick" Martinez',r:"Lieutenant",on:1,m:[]},{n:'"Ghost" Williams',r:"Smuggler",on:1,m:[]},{n:'"Bruiser" Thompson',r:"Enforcer",on:1,m:[]}],wact:-1,
+ table:{ph:"idle",seats:[],pot:0,end:0},wcd:[0,0,0],hits:[{s:0,t:0},{s:0,t:0},{s:0,t:0}],
+ ytkey:"",last:Date.now(),log:[]};}
+var G=null,tab="gym",EV=null,net={st:"sim",ws:null};
+function save(){try{G.last=Date.now();localStorage.setItem("b12stable",JSON.stringify(G));}catch(e){}}
+function load(){var g=newG();try{var r=localStorage.getItem("b12stable");if(r){var o=JSON.parse(r);for(var k in g)if(o[k]!==undefined&&o[k]!==null)g[k]=o[k];}}catch(e){}G=g;
+ var dt=Math.max(0,(Date.now()-(G.last||Date.now()))/1000);if(dt>1)regen(Math.min(dt,28800));}
+function regen(s){G.nrg=clamp(G.nrg+(.35+G.lv*.01)*s,0,G.mnrg);G.stm=clamp(G.stm+(1.1+G.spd*.03)*s,0,G.mstm);G.nrv=clamp(G.nrv+(.22+G.lv*.005)*s,0,G.mnrv);if(!G.inj)G.hp=clamp(G.hp+.25*s,0,G.mhp);}
+function expN(){return Math.floor(80+G.lv*45);}
+function pow(o){return(o.str||o.str===0?o.str:G.str)*1.35+(o.def||G.def)*1.15+(o.spd||G.spd)*.5;}
+/* ---------- LOG / TOAST ---------- */
+var LCOL={g:"#4ade80",r:"#ef4444",a:"#f59e0b",b:"#38bdf8",d:"#8b949e",go:"#fbbf24",pu:"#a855f7"};
+function log(t,c){G.log.unshift({t:t,c:c||"g"});if(G.log.length>40)G.log.pop();renderLog();}
+function renderLog(){$("log").innerHTML=G.log.map(function(e){return '<div style="color:'+(LCOL[e.c]||LCOL.g)+'">&gt; '+esc(e.t)+"</div>";}).join("");}
+var toastT=null;function toast(t,c){var el=$("toast");el.textContent=t;el.style.borderColor=LCOL[c]||LCOL.g;el.style.color=LCOL[c]||LCOL.g;el.style.display="block";clearTimeout(toastT);toastT=setTimeout(function(){el.style.display="none";},1800);}
+/* ---------- CORE ACTIONS ---------- */
+function chkLv(){while(G.exp>=expN()){G.exp-=expN();G.lv++;G.mhp+=5;G.mnrg+=2;G.mstm+=3;G.mnrv+=2;G.hp=G.mhp;G.nrg=G.mnrg;G.stm=G.mstm;G.nrv=G.mnrv;if(G.lv%3===0)G.fav++;toast("LEVEL UP — Lv."+G.lv,"go");log("LEVEL UP -> Lv."+G.lv,"go");}}
+function train(i){if(G.inj)return deny("Injured — see Infirmary");if(G.nrg<1)return deny("Not enough energy");if(G.stm<6)return deny("Not enough stamina");G.nrg--;G.stm-=6;var g=1+Math.floor(G.lv/5);if(i===0){G.str+=g;G.mhp+=2;}else if(i===1)G.def+=g;else{G.spd+=g;G.mstm+=3;}G.exp+=5+G.lv;G.tr++;log("Trained "+["STR","DEF","SPD"][i]+" +"+g,"g");chkLv();render();}
+function deny(m){toast(m,"r");log("BLOCKED: "+m,"r");}
+function rest(){var n=Date.now();if(n<G.rest)return deny("Rest on cooldown");G.rest=n+60000;G.stm=clamp(G.stm+G.mstm*.45,0,G.mstm);G.nrv=clamp(G.nrv+G.mnrv*.45,0,G.mnrv);log("Bunk rest (+STM +NRV)","g");render();}
+function mkt(){var m=Math.pow(1.085,G.lv-1)+(G.lv-1)*.06;var l=[{id:"drink",n:"Energy Drink",d:"50% NRG",p:Math.round(22*m),cur:"cash",res:"nrg",am:.5},{id:"bar",n:"Protein Bar",d:"50% STM",p:Math.round(16*m),cur:"cash",res:"stm",am:.5},{id:"contra",n:"Contraband",d:"60% NRV",p:Math.round(38*m),cur:"cash",res:"nrv",am:.6}];if(G.lv>=3)l.push({id:"medkit",n:"Smuggled Medkit",d:"75% HP",p:1,cur:"fav",res:"hp",am:.75});return l;}
+function buy(id){var it=mkt().filter(function(x){return x.id===id;})[0];if(!it)return;if(it.cur==="fav"){if(G.fav<it.p)return deny("Not enough favors");G.fav-=it.p;}else{if(G.cash<it.p)return deny("Not enough cash");G.cash-=it.p;}G.inv[id]=(G.inv[id]||0)+1;log("Bought "+it.n,"a");render();}
+function use(id){if((G.inv[id]||0)<=0)return deny("None in stash");var it=mkt().filter(function(x){return x.id===id;})[0];if(!it)return;G.inv[id]--;var full={nrg:"mnrg",stm:"mstm",nrv:"mnrv",hp:"mhp"}[it.res];var am=G[full]*it.am;G[it.res]=clamp(G[it.res]+am,0,G[full]);log("Used "+it.n,"g");render();}
+function healC(){return Math.max(10,Math.round((G.mhp-G.hp)*1.6)+10);}
+function heal(f){if(G.hp>=G.mhp&&!G.inj)return deny("Already patched up");if(f){if(G.fav<1)return deny("No favors");G.fav--;}else{var c=healC();if(G.cash<c)return deny("Not enough cash");G.cash-=c;}G.hp=G.mhp;G.inj=false;log("Infirmary: healed to full","g");render();}
+function rollJob(){var a=pick(JOBS),sc=1+(G.lv-1)*.14;return{t:a.t,n:Math.max(5,Math.round(a.n*(1+(G.lv-1)*.07))),c:Math.round(a.c*sc),r:clamp(a.r+G.lv*.005,.12,.55),s:a.s,sev:Math.round(a.sev*sc)};}
+function refJobs(){G.jobs=[rollJob(),rollJob()];G.jobAt=Date.now()+45000;}
+function job(i){var j=G.jobs[i];if(!j)return;if(G.nrv<j.n)return deny("Not enough nerve");G.nrv-=j.n;var sc=j.s==="spd"?G.spd*1.4+G.def*.6:j.s==="def"?G.def*1.4+G.spd*.6:G.spd+G.def;var od=clamp((.88-j.r*.72)*(.6+.4*clamp(sc/(8+G.lv*3.2),.5,1.8)),.1,.94);
+ if(Math.random()<od){G.cash+=j.c;G.exp+=Math.round(j.c*.2);log("Job done: "+j.t+" (+$"+j.c+")","a");chkLv();}else{var d=Math.max(6,Math.round(j.sev*(.85+Math.random()*.35)-G.def*.75));G.hp=Math.max(1,G.hp-d);G.inj=true;log("Job failed -"+d+" HP, INJURED","r");}
+ G.jobs.splice(i,1);if(!G.jobs.length)refJobs();render();}
+function rollRival(){return{n:pick(NAMES),lv:Math.max(1,G.lv+rnd(-2,2)),str:4+Math.floor(G.lv*1.1+Math.random()*4),def:4+Math.floor(G.lv*1.1+Math.random()*4),spd:4+Math.floor(G.lv*1.1+Math.random()*4)};}
+function refRivals(){G.rivals=[rollRival(),rollRival(),rollRival()];G.rivalAt=Date.now()+60000;G.pits=[0,0,0,0,0,0,0,0,0];}
+function dig(i){if(G.stm<4)return deny("Not enough stamina");G.stm-=4;G.pits[i]=1;if(Math.random()<.22){log("Pit #"+(i+1)+" empty","d");}else{var r=Math.random()*100,loot="cash";for(var x=0;x<LOOT.length;x++){r-=LOOT[x][1];if(r<=0){loot=LOOT[x][0];break;}}G.dug++;G.exp+=8+G.lv*2;
+ if(loot==="cash"){var c=Math.round(14+G.lv*6+Math.random()*(20+G.lv*8));G.cash+=c;log("Buried cash +$"+c,"a");}else if(loot==="favor"){G.fav++;log("Favor marker +1","g");}else{G.inv[loot]=(G.inv[loot]||0)+1;log("Found "+(INAME[loot]||loot),"g");}chkLv();}render();}
+function brawl(i){var f=G.rivals[i];if(!f)return;if(G.stm<8)return deny("Not enough stamina");if(G.inj)return deny("Too injured");G.stm-=8;var edge=G.buffs.rshiv?10:(G.inv.shank?6:0);var me=pow(G)+edge+(G.buffs.stim?pow(G)*.3:0)+Math.random()*14,th=pow(f)+Math.random()*14;
+ if(me>=th){G.won++;var c=Math.round((20+f.lv*12)*(.8+Math.random()*.6));G.cash+=c;G.exp+=14+f.lv*5;if(G.buffs.stim)G.buffs.stim--;log("Beat "+f.n+" +$"+c,"g");chkLv();}else{if(G.buffs.smoke){G.buffs.smoke--;log("Smoke bomb — slipped away","a");}else{var d=Math.max(5,Math.round((8+f.lv*4+f.str*1.4)*(.8+Math.random()*.5)-G.def*.75));G.hp=Math.max(1,G.hp-d);if(G.hp<=G.mhp*.25)G.inj=true;log("Lost to "+f.n+" -"+d+" HP","r");}}
+ G.rivals.splice(i,1);if(!G.rivals.length)refRivals();render();}
+function loseProd(){var lock=G.placed.indexOf("locker")>=0;G.heat=Math.min(100,G.heat+8);if(lock)log("Shakedown: locker held (+8% heat)","a");else{G.cash=Math.max(0,G.cash-600);log("Shakedown bust -$600 (+8% heat)","r");}}
+/* kingpin */
+function collect(){G.cash+=G.income;G.heat=Math.min(100,G.heat+2);tx(1,G.income,"Racket income");log("Collected "+money(G.income),"go");render();}
+function tx(s,a,d){G.tx.unshift({s:s,a:a,d:d});if(G.tx.length>10)G.tx.pop();}
+function bank(dep){var v=parseInt(prompt(dep?"Deposit:":"Withdraw:","100"),10);if(!v||v<=0)return;if(dep){if(v>G.cash)return deny("Not enough cash");G.cash-=v;G.bank+=v;tx(1,v,"Deposit");}else{if(v>G.bank)return deny("Not enough in bank");G.bank-=v;G.cash+=v;tx(-1,v,"Withdrawal");}render();}
+function rack(id){var r=G.racks.filter(function(x){return x.id===id;})[0];var c=r.l*1000;if(G.cash<c)return deny("Need "+money(c));G.cash-=c;r.l++;r.y+=Math.floor(c*.15);G.income+=Math.floor(c*.15);tx(-1,c,"Upgrade");log("Upgraded "+r.n,"g");render();}
+function bribe(){if(G.cash<500)return deny("Need $500");G.cash-=500;G.heat=Math.max(0,G.heat-10);log("Bribed Jenkins (-10% heat)","b");render();}
+function frame(){if(G.fav<1)return deny("Need 1 favor");G.fav--;G.heat=Math.max(0,G.heat-15);log("Framed Maddog (-15% heat)","pu");render();}
+function parole(){if(G.sent<G.parole)return deny("Not eligible yet");var sc=G.lv*10+G.str+G.def+G.spd+(G.curFac?G.fac[G.curFac]||0:0)-(G.snitch?200:0);if(Math.random()<clamp(sc/1000,.1,.9)){toast("PAROLE GRANTED!","go");log("PAROLE GRANTED — new run","go");var b=G.lv;G=newG();G.lv=1;G.mhp=100+ (b>=3?20:0);G.hp=G.mhp;}else{G.parole+=30;log("Parole denied","r");}render();}
+function joinF(id){if(G.snitch&&id!=="guards")return deny("Gangs refuse a snitch");G.curFac=id;G.fac[id]=(G.fac[id]||0)+50;log("Joined "+FACS[id].n,"a");render();}
+function craft(id){var r=RECIPES.filter(function(x){return x.id===id;})[0];for(var k in r.p)if((G.inv[k]||0)<r.p[k])return deny("Missing parts");for(var k2 in r.p)G.inv[k2]-=r.p[k2];G.buffs[id]=(G.buffs[id]||0)+1;log("Crafted "+r.n,"g");render();}
+function hunt(i){if(Date.now()<G.wcd[i])return deny("Target gone quiet");if(G.stm<10)return deny("Need 10 STM");G.stm-=10;G.wcd[i]=Date.now()+60000;if(Math.random()<.4+G.spd*.01){G.cash+=WANTED[i].b;G.inf+=200;log("Bounty collected "+money(WANTED[i].b),"go");}else{var d=rnd(20,35);G.hp=Math.max(1,G.hp-d);G.inj=true;log("Hunt failed -"+d+" HP","r");}render();}
+function hit(i){if(G.hits[i].s!==0)return;G.hits[i].s=1;G.hits[i].t=0;log("Contract accepted: "+HITS[i].n,"a");render();}
+/* wire */
+var BOTS=["Got it, boss.","I'll handle it quietly.","That's gonna cost extra.","Consider it done.","Guards are watching — make it quick."];
+function wireSend(txt){if(G.wact<0||!txt)return;var c=G.wire[G.wact];c.m.push({o:1,t:txt});if(EV&&EV.d.contact===G.wact){var o=EV.d.opts.filter(function(x){return x.c===txt.toUpperCase();})[0];if(o){evResolve(o.c);return;}}if(net.st==="live"&&net.ws)try{net.ws.send(JSON.stringify({t:"dm",to:c.n,text:txt}));}catch(e){}
+ else if(c.on)setTimeout(function(){c.m.push({o:0,t:pick(BOTS)});if(tab==="wire")renderChat();},rnd(900,2000));renderChat();}
+function evTrigger(){if(EV)return;var pool=EVENTS.filter(function(d){return G.heat>=(d.hmin||0);});var d=pick(pool.length?pool:EVENTS);EV={d:d,left:d.win};var c=G.wire[d.contact];c.m.push({o:0,t:d.text,u:1});toast("⚠ URGENT WIRE: "+c.n,"r");log("EVENT: "+d.title,"r");showBanner();}
+function showBanner(){var b=$("banner");b.style.display="block";$("btitle").textContent="⚠ "+EV.d.title;$("btext").textContent=EV.d.text;$("bopts").innerHTML=EV.d.opts.map(function(o){return '<button class="act red" data-act="ev:'+o.c+'">'+o.l+"</button>";}).join("");}
+function evResolve(c){if(!EV)return;var o=EV.d.opts.filter(function(x){return x.c===c;})[0];var w=G.wire[EV.d.contact];w.m.push({o:1,t:c});if(o)o.f();EV=null;$("banner").style.display="none";if(tab==="wire")renderChat();render();}
+/* rec room table */
+function tblJoin(){var t=G.table;if(t.ph==="rolling")return deny("Hand in progress");var bet=Math.max(50,parseInt(prompt("Bet (min 50):","50"),10)||50);if(G.cash<bet)return deny("Not enough cash");if(t.ph==="idle"){t.ph="bet";t.end=Date.now()+10000;t.pot=0;t.seats=[];for(var i=0,n=rnd(1,3);i<n;i++)(function(){setTimeout(function(){if(G.table.ph!=="bet")return;var b=pick(G.wire);var bb=G.table.minBet||50;G.table.seats.push({n:b.n,b:rnd(50,200),roll:null});G.table.pot+=0;},rnd(1200,7000));})();}
+ G.cash-=bet;t.seats.push({n:"YOU",b:bet,roll:null,me:1});t.pot+=bet;log("Sat at craps ("+money(bet)+")","b");render();}
+function tblRoll(){var t=G.table;if(t.ph!=="bet"||t.seats.length<2){t.ph="idle";t.seats=[];t.pot=0;return;}t.ph="rolling";t.pot=t.seats.reduce(function(s,x){return s+x.b;},0);var i=0;(function step(){if(i>=t.seats.length){setTimeout(tblPay,600);return;}var s=t.seats[i];var a=rnd(1,6),b=rnd(1,6);s.roll=a+b;s.dis=a+"+"+b;i++;render();setTimeout(step,500);})();}
+function tblPay(){var t=G.table;var best=Math.max.apply(null,t.seats.map(function(s){return s.roll;}));var ws=t.seats.filter(function(s){return s.roll===best;});if(ws.length>1){toast("Push — pot carries","d");t.ph="bet";t.end=Date.now()+8000;t.seats.forEach(function(s){s.roll=null;});return;}var w=ws[0];if(w.me){G.cash+=t.pot;tx(1,t.pot,"Craps win");toast("YOU WIN "+money(t.pot),"go");log("Won "+money(t.pot)+" at craps","go");}else log(w.n+" takes "+money(t.pot),"go");t.ph="idle";t.seats=[];t.pot=0;render();}
+/* youtube */
+function ytGo(q){q=(q||"").trim();if(!q)return;if(/^[A-Za-z0-9_-]{11}$/.test(q)){ytPlay(q);return;}var res=CATALOG.filter(function(c){return q.toLowerCase().split(" ").some(function(w){return c.tags.indexOf(w)>=0||c.t.toLowerCase().indexOf(w)>=0;});});G.ytres=res.length?res:CATALOG.slice(0,3);G.ytnote="Offline catalog (set API key for live search)";render();}
+function ytPlay(id){$("ytframe").src="https://www.youtube-nocookie.com/embed/"+id+"?autoplay=1";$("yturl").textContent="https://www.youtube.com/watch?v="+id;$("ytmodal").style.display="flex";log("Streaming "+id,"b");}
+/* ---------- RENDER ---------- */
+function renderHUD(){$("h-cash").textContent=money(G.cash);$("h-bank").textContent=money(G.bank);$("h-fav").textContent=G.fav;$("h-inf").textContent=G.inf;$("h-heat").textContent=Math.round(G.heat)+"%";$("hpbar").style.width=(G.hp/G.mhp*100)+"%";$("netpill").textContent="NET: "+net.st.toUpperCase();}
+function renderNav(){$("nav").innerHTML=TABS.map(function(t){return '<button data-act="tab:'+t[0]+'" class="'+(tab===t[0]?"on":"")+'">'+t[1]+"</button>";}).join("");}
+function row(l,r,acts){return '<div class="row"><div>'+l+'</div><div style="display:flex;gap:6px;align-items:center">'+r+"</div></div>";}
+function btn(a,l,c,dis){return '<button class="act '+(c||"")+'" data-act="'+a+'"'+(dis?" disabled":"")+">"+l+"</button>";}
+function renderView(){var h="";
+ if(tab==="gym"){h="<h2>THE GYM</h2>"+(G.inj?'<div class="card" style="border-color:var(--r);color:var(--r)">CRITICALLY INJURED — training locked</div>':"")+'<div class="grid3">'+
+  btn("train:0","TRAIN STR<br><span class=dim>6 STM + 1 NRG</span>","grn")+btn("train:1","TRAIN DEF<br><span class=dim>6 STM + 1 NRG</span>","grn")+btn("train:2","TRAIN SPD<br><span class=dim>6 STM + 1 NRG</span>","grn")+"</div>"+
+  '<div class="card" style="margin-top:10px">'+row('<b>STR</b> '+G.str+' &nbsp; <b>DEF</b> '+G.def+' &nbsp; <b>SPD</b> '+G.spd+' &nbsp; <span class="dim">Lv.'+G.lv+" EXP "+G.exp+"/"+expN()+"</span>",btn("rest","REST","blu"))+"</div>";}
+ else if(tab==="yard"){h="<h2>THE YARD</h2><div class=card><div class=dim>DIG PITS (4 STM)</div><div class=grid9 style='margin-top:8px'>"+G.pits.map(function(p,i){return '<div class="pit'+(p?" dug":"")+'" data-act="dig:'+i+'">'+(p?"DUG":"PIT "+(i+1))+"</div>";}).join("")+'</div></div><div class="card"><div class="dim">RIVALS (8 STM)</div>'+G.rivals.map(function(f,i){return row("<b>"+f.n+"</b> Lv."+f.lv+' <span class="dim">STR'+f.str+" DEF"+f.def+" SPD"+f.spd+"</span>",btn("battle:"+i,"BATTLE","red"));}).join("")+"</div>";}
+ else if(tab==="market"){h="<h2>MARKETPLACE</h2><div class=card>"+mkt().map(function(it){var aff=it.cur==="fav"?G.fav>=it.p:G.cash>=it.p;return row("<b>"+it.n+"</b> <span class=dim>"+it.d+"</span>","<span class='mono "+(it.cur==="fav"?"fav":"cash")+"'>"+(it.cur==="fav"?it.p+" fav":"$"+it.p)+"</span>"+btn("buy:"+it.id,"BUY","gold",!aff));}).join("")+"</div>";}
+ else if(tab==="warden"){h="<h2>THE WARDEN</h2><div class=card><div class=dim>NRV "+Math.floor(G.nrv)+"/"+G.mnrv+"</div>"+G.jobs.map(function(j,i){return row("<b>"+j.t+"</b><br><span class=dim>NRV -"+j.n+" • $"+j.c+" • RISK "+Math.round(j.r*100)+"%</span>",btn("job:"+i,"ACCEPT","grn",G.nrv<j.n));}).join("")+"</div>";}
+ else if(tab==="infirm"){h="<h2>INFIRMARY</h2><div class=card>"+row("HP <b>"+Math.floor(G.hp)+" / "+G.mhp+"</b>"+(G.inj?' <span style="color:var(--r)">INJURED</span>':""),btn("heal:cash","TREAT $"+healC(),"red",G.cash<healC())+btn("heal:fav","FAVOR","grn",G.fav<1))+"</div>";}
+ else if(tab==="cell"){h="<h2>MY CELL</h2><div class=card><div class=dim>STASH</div>"+mkt().map(function(it){var n=G.inv[it.id]||0;return row(it.n+" <b>x"+n+"</b>",btn("use:"+it.id,"USE","blu",n<=0));}).join("")+row("Shiv x"+(G.inv.shank||0)+(G.buffs.rshiv?" (reinforced)":""),"<span class=dim>brawl edge</span>")+"</div><div class=card><div class=dim>AMENITIES (favors: "+G.fav+")</div>"+AMEN.map(function(a){return row("<b>"+a.n+"</b> <span class=dim>"+a.d+"</span>",btn("amen:"+a.id,a.c+" FAV","pu",G.fav<a.c));}).join("")+(G.placed.length?row("Placed: "+G.placed.join(", "),""):"")+"</div>";}
+ else if(tab==="kingpin"){h="<h2>KINGPIN EMPIRE</h2><div class=card>"+row("Daily income <b class=cash>"+money(G.income)+"</b>",btn("collect","COLLECT","gold"))+row("Heat <b class=heat>"+Math.round(G.heat)+"%</b>",btn("bribe","BRIBE $500","blu",G.cash<500)+btn("frame","FRAME MADDOG","pu",G.fav<1))+row("Sentence served <b>"+Math.floor(G.sent)+"d</b> / parole @ "+G.parole+"d",btn("parole","REQUEST PAROLE","grn",G.sent<G.parole))+"</div><div class=card>"+G.racks.map(function(r){return row("<b>"+r.n+"</b> Lv."+r.l+" <span class=dim>"+money(r.y)+"/day</span>",btn("rack:"+r.id,"UPG $"+r.l*1000,"gold",G.cash<r.l*1000));}).join("")+"</div><div class=card><div class=dim>BANK "+money(G.bank)+"</div>"+row("",btn("bank:dep","DEPOSIT","blu")+btn("bank:wit","WITHDRAW","red"))+G.tx.slice(0,4).map(function(t){return row('<span class="mono" style="color:'+(t.s>0?"var(--g)":"var(--r)")+'">'+(t.s>0?"+":"-")+money(t.a)+"</span> <span class=dim>"+t.d+"</span>","");}).join("")+"</div>";}
+ else if(tab==="factions"){h="<h2>FACTIONS</h2>"+(G.snitch?'<div class="card" style="border-color:var(--r);color:var(--r)">MARKED AS SNITCH</div>':"")+Object.keys(FACS).map(function(id){var f=FACS[id],j=G.curFac===id;return '<div class="card" style="border-color:'+(j?"var(--g)":f.c)+'">'+row('<b style="color:'+f.c+'">'+f.n+"</b> <span class=dim>rep "+(G.fac[id]||0)+"</span>",j?"<b style=color:var(--g)>JOINED</b>":btn("join:"+id,"JOIN","gold"));}).join("")+"</div>";}
+ else if(tab==="wire"){h="<h2>CONTRABAND WIRE</h2>"+row('<span class="dim">Uplink: <b>'+net.st.toUpperCase()+"</b></span>",btn("net:connect",net.st==="offline"?"CONNECT LIVE":"DISCONNECT","blu"))+'<div class="chat"><div class="cl">'+G.wire.map(function(c,i){return '<div class="ci'+(G.wact===i?" on":"")+'" data-act="wire:'+i+'">'+c.n+'<br><span class="dim">'+c.r+"</span></div>";}).join("")+'</div><div class="cw"><div id="msgs"></div><div id="cin"><input id="cinput" placeholder="Encrypted message… (Enter)"><button class="act grn" data-act="wire:send">SEND</button></div></div></div>';setTimeout(renderChat,0);}
+ else if(tab==="recroom"){var t=G.table;h="<h2>REC ROOM</h2><div class=card>"+row("<b>STREET CRAPS</b> <span class=dim>"+(t.ph==="bet"?"BETTING "+Math.max(0,Math.ceil((t.end-Date.now())/1000))+"s":t.ph.toUpperCase())+" • POT "+money(t.pot)+"</span>",btn("tbl:join","SIT & BET","gold",t.ph==="rolling"))+"<div class=dim style='margin:6px 0'>"+(t.seats.length?t.seats.map(function(s){return "["+s.n+" $"+s.b+(s.roll?" "+s.dis:"")+"]";}).join(" "):"Empty table.")+"</div></div>"+row("Loan ledger — 3 inmates owe $1,200",btn("loan","COLLECT","gold"))+row("Fight night — 30% cut of pool",btn("fightnight","PROMOTE $500","red",G.cash<500))+"</div>";}
+ else if(tab==="wanted"){h="<h2>MOST WANTED & HITS</h2><div class=card>"+WANTED.map(function(w,i){var cd=Math.max(0,Math.ceil((G.wcd[i]-Date.now())/1000));return row("<b style=color:var(--r)>"+w.n+"</b><br><span class=dim>"+w.cr+" • "+money(w.b)+"</span>",btn("hunt:"+i,cd?cd+"s":"HUNT","red",cd>0));}).join("")+"</div><div class=card>"+HITS.map(function(x,i){var st=G.hits[i];return row("<b style=color:var(--a)>"+x.n+"</b> <span class=dim>"+money(x.rw)+" • "+"★".repeat(x.d)+"</span>",st.s===2?"<span class=dim>CLOSED</span>":st.s===1?'<span class="mono" style="color:var(--a)">'+Math.floor(st.t)+"s/60s</span>":btn("hit:"+i,"ACCEPT","gold"));}).join("")+"</div>";}
+ else if(tab==="browser"){h='<h2>PRISONNET TERMINAL</h2><div class="card">'+row('<input id="ytq" placeholder="Search terms or Video ID…" style="flex:1;background:#0a0d12;border:1px solid var(--bd);color:var(--tx);padding:8px;border-radius:6px">',btn("yt:key","⚙ KEY","blu")+btn("yt:go","SEARCH","grn"))+(G.ytnote?'<div class="dim">'+G.ytnote+"</div>":"")+(G.ytres||[]).map(function(r){return '<div class="ytitem" data-act="yt:'+r.id+'"><img src="https://i.ytimg.com/vi/'+r.id+'/mqdefault.jpg" alt=""><div><b>'+esc(r.t)+'</b><br><span class="dim">'+esc(r.ch)+"</span></div></div>";}).join("")+"</div>";}
+ $("main").innerHTML='<div class="view on">'+h+"</div>";}
+function renderChat(){var m=$("msgs");if(!m)return;if(G.wact<0){m.innerHTML='<div class="dim" style="margin:auto">Select a contact…</div>';return;}var c=G.wire[G.wact];m.innerHTML=c.m.map(function(x){return '<div class="m '+(x.o?"out":"in")+(x.u?" urgent":"")+'">'+esc(x.t)+"</div>";}).join("");m.scrollTop=m.scrollHeight;}
+function render(){renderHUD();renderNav();renderView();}
+/* ---------- INPUT ---------- */
+document.addEventListener("click",function(e){var el=e.target.closest("[data-act]");if(!el)return;var id=el.getAttribute("data-act"),p=id.split(":"),a=p[0],v=p.slice(1).join(":");
+ if(a==="tab"){tab=v;render();return;}
+ if(a==="train")train(+v);else if(a==="rest")rest();else if(a==="buy")buy(v);else if(a==="use")use(v);else if(a==="heal")heal(v==="fav");else if(a==="job")job(+v);else if(a==="dig")dig(+v);else if(a==="battle")brawl(+v);
+ else if(a==="collect")collect();else if(a==="bribe")bribe();else if(a==="frame")frame();else if(a==="bank")bank(v==="dep");else if(a==="rack")rack(v);else if(a==="parole")parole();else if(a==="join")joinF(v);else if(a==="craft")craft(v);
+ else if(a==="amen"){var am=AMEN.filter(function(x){return x.id===v;})[0];if(G.fav<am.c)return deny("Not enough favors");G.fav-=am.c;G.placed.push(am.id);if(am.st!=="none"){G["m"+am.st]+=am.v;}log("Placed "+am.n,"g");render();}
+ else if(a==="hunt")hunt(+v);else if(a==="hit")hit(+v);
+ else if(a==="wire"){if(v==="send"){var i=$("cinput");wireSend(i.value);i.value="";}else{G.wact=+v;render();}}
+ else if(a==="net"){netConnect();}
+ else if(a==="tbl")tblJoin();else if(a==="loan"){G.cash+=1200;G.heat+=4;tx(1,1200,"Debts");log("Debts collected +$1,200","go");render();}else if(a==="fightnight"){if(G.cash<500)return deny("Need $500");G.cash-=500;G.inf+=50;G.income+=60;log("Fight night promoted","go");render();}
+ else if(a==="yt"){if(v==="close"){$("ytmodal").style.display="none";$("ytframe").src="";}else if(v==="key"){var k=prompt("YouTube Data API v3 key (blank = offline):",G.ytkey||"");if(k!==null){G.ytkey=k.trim();try{localStorage.setItem("b12_yt_key",G.ytkey);}catch(e){}toast(G.ytkey?"Key saved":"Offline mode","b");}}else if(v==="go"){var q=$("ytq");if(G.ytkey){fetch("https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=6&q="+encodeURIComponent(q.value)+"&key="+G.ytkey).then(function(r){return r.json();}).then(function(d){G.ytres=(d.items||[]).map(function(it){return{id:it.id.videoId,t:it.snippet.title,ch:it.snippet.channelTitle};});G.ytnote="LIVE — YouTube Data API v3";render();}).catch(function(){ytGo(q.value);});}else ytGo(q.value);}else ytPlay(v);}
+ else if(a==="ev")evResolve(v);});
+document.addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target.id==="cinput"){wireSend(e.target.value);e.target.value="";}if(e.key==="Enter"&&e.target.id==="ytq"){var q=e.target;ytGo(q.value);}});
+function netConnect(){if(net.st!=="offline"){try{if(net.ws)net.ws.close();}catch(e){}net.ws=null;net.st="sim";log("Uplink offline — SIM crew","a");renderHUD();return;}var url=prompt("WebSocket server URL:","ws://localhost:8080")||"ws://localhost:8080";var ok=false;try{var ws=new WebSocket(url);net.ws=ws;var f=setTimeout(function(){if(!ok){try{ws.close();}catch(e){}net.st="sim";renderHUD();}},2500);
+ ws.onopen=function(){ok=true;clearTimeout(f);net.st="live";ws.send(JSON.stringify({t:"hello",name:"Razor"}));log("Uplink LIVE","g");renderHUD();};
+ ws.onmessage=function(ev){try{var m=JSON.parse(ev.data);if(m.t==="dm"){var c=G.wire.filter(function(x){return x.n===m.fromName;})[0];if(c){c.m.push({o:0,t:m.text});if(tab==="wire"&&G.wire[G.wact]===c)renderChat();}}}catch(e){};};
+ ws.onclose=function(){if(net.st==="live"){net.st="sim";renderHUD();}};}catch(e){net.st="sim";}renderHUD();}
+/* ---------- TICK ---------- */
+setInterval(function(){if(!G)return;regen(1);G.sent+=1/20;G.heat=Math.max(0,G.heat-.02);
+ G.hits.forEach(function(h,i){if(h.s===1){h.t++;if(h.t>=60){if(Math.random()<.9-HITS[i].d*.12+G.spd*.008){G.cash+=HITS[i].rw;G.inf+=150;log("HIT COMPLETE +"+money(HITS[i].rw),"go");}else{G.hp=Math.max(1,G.hp-25);G.inj=true;log("Hit failed","r");}h.s=2;if(tab==="wanted")renderView();}}});
+ var t=G.table;if(t.ph==="bet"&&Date.now()>t.end)tblRoll();
+ if(Date.now()>G.jobAt)refJobs();if(Date.now()>G.rivalAt)refRivals();
+ if(EV){EV.left--;$("bfill").style.width=clamp(EV.left/EV.d.win*100,0,100)+"%";if(EV.left<=0){var to=EV.d.to;EV=null;$("banner").style.display="none";if(to)to();render();}}
+ if(tab==="recroom")renderView();renderHUD();save();},1000);
+setInterval(function(){if(G&&!EV&&Math.random()<.12+(G.heat/100)*.4)evTrigger();},20000);
+setTimeout(function(){if(G&&!EV)evTrigger();},40000);
+/* ---------- BOOT ---------- */
+try{load();G.ytkey=G.ytkey||"";try{G.ytkey=localStorage.getItem("b12_yt_key")||G.ytkey;}catch(e){}if(!G.jobs.length)refJobs();if(!G.rivals.length)refRivals();if(!G.log.length)log("Processed into Block B-12 — stable build","g");render();console.log("BOOT OK");}catch(err){var b=$("booterr");b.style.display="block";b.textContent="BOOT ERROR:\n"+(err&&err.stack||err);}
+</script>
+</body>
+</html>
