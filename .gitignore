@@ -1,0 +1,9 @@
+.gradle/
+.idea/
+build/
+app/build/
+output/
+*.keystore
+release.jks
+key.properties
+*.log
